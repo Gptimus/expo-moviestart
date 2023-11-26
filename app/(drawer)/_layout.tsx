@@ -1,7 +1,6 @@
 import { colorTokens } from '@tamagui/themes';
 import Drawer from 'expo-router/drawer';
 import { Home, Star } from 'lucide-react-native';
-import React from 'react';
 
 const Layout = () => {
   return (
