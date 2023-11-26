@@ -11,8 +11,15 @@ export const getTrending = async (page: number = 1): Promise<TrendingResult> => 
 };
 
 export const getSearchResults = async (query: string): Promise<TrendingResult> => {
+  console.log('Search', query);
   const response = await fetch(
-    `https://api.themoviedb.org/3/trending/all/day?language=fr-FR&api_key=${API_KEY}&query=${encodeURIComponent(
+    `https://api.themoviedb.org/3/search/multi?language=fr-FR&api_key=${API_KEY}&query=${encodeURIComponent(
+      query
+    )}`
+  );
+
+  console.log(
+    `https://api.themoviedb.org/3/search/multi?language=fr-FR&api_key=${API_KEY}&query=${encodeURIComponent(
       query
     )}`
   );

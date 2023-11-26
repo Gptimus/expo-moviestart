@@ -4,18 +4,23 @@ import { ImageBackground } from 'react-native';
 import { Input, Spinner, YStack, ScrollView } from 'tamagui';
 
 import { MovieCard } from '@/components/movie-card';
+import { useDebounce } from '@/hooks/use-debounce';
 import { getSearchResults, getTrending } from '@/services/api';
 import { Container, Main, Subtitle, Title } from '@/tamagui.config';
 
 const Page = () => {
   const [searchString, setSearchString] = useState<string>('');
+  const { debouncedValue: debouncedString } = useDebounce(searchString, 300);
 
   const trendingQuery = useQuery({ queryKey: ['trending'], queryFn: () => getTrending() });
 
   const searchQuery = useQuery({
-    queryKey: ['search', searchString],
-    queryFn: () => getSearchResults(searchString),
+    queryKey: ['search', debouncedString],
+    queryFn: () => getSearchResults(debouncedString),
+    enabled: debouncedString.length > 0,
   });
+
+  const data = searchQuery.data?.results ? searchQuery.data.results : trendingQuery.data?.results;
 
   return (
     <Main>
@@ -56,7 +61,7 @@ const Page = () => {
           opacity: 0,
         }}
         animation="lazy">
-        Trending
+        {searchQuery.data?.results ? 'Search Results' : 'Trending'}
       </Subtitle>
       {(trendingQuery.isLoading || searchQuery.isLoading) && (
         <Spinner size="large" color="$blue10" />
@@ -71,7 +76,8 @@ const Page = () => {
           paddingLeft: 14,
           paddingRight: 14,
         }}>
-        {trendingQuery.data?.results.map((item) => <MovieCard movie={item} key={item.id} />)}
+        {!(trendingQuery.isLoading || searchQuery.isLoading) &&
+          data?.map((item) => <MovieCard movie={item} key={item.id} />)}
       </ScrollView>
     </Main>
   );
