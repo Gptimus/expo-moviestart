@@ -35,7 +35,5 @@ export const getMovieDetailsByIdAndMediaType = async (
     `https://api.themoviedb.org/3/${mediaType}/${id}?language=fr-FR&api_key=${API_KEY}`
   );
 
-  console.log(`https://api.themoviedb.org/3/${mediaType}/${id}?language=fr-FR&api_key=${API_KEY}`);
-
   return response.json();
 };
