@@ -30,7 +30,7 @@ const headingFont = createInterFont();
 const bodyFont = createInterFont();
 
 export const Container = styled(YStack, {
-  flex: 1,
+  //flex: 1,
   padding: 24,
 });
 

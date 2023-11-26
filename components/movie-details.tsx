@@ -1,27 +1,66 @@
 import { useQuery } from '@tanstack/react-query';
+import { Stack } from 'expo-router';
+import { Heart } from 'lucide-react-native';
 import { FunctionComponent } from 'react';
-import { H1, Paragraph, ScrollView, Spinner, Text, YStack } from 'tamagui';
+import { ImageBackground } from 'react-native';
+import { useMMKVBoolean, useMMKVObject } from 'react-native-mmkv';
+import Animated from 'react-native-reanimated';
+import { Button, H1, Paragraph, ScrollView, Spinner, Text, YStack, useTheme } from 'tamagui';
 
 import { getMovieDetailsByIdAndMediaType } from '@/services/api';
 import { Main } from '@/tamagui.config';
 import { MediaType } from '@/types/api-results';
-import { ImageBackground } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { Favorite } from '@/types/favorites';
 
 type MovieDetailProps = {
   id: string;
   mediaType: MediaType;
 };
 export const MovieDetails: FunctionComponent<MovieDetailProps> = ({ id, mediaType }) => {
+  const theme = useTheme();
   const movieQuery = useQuery({
     queryKey: ['movie', id],
     queryFn: () => getMovieDetailsByIdAndMediaType(+id, mediaType),
   });
 
   const movie = movieQuery.data;
+  const [isFavorite, setIsFavorite] = useMMKVBoolean(`${mediaType}-${id}`);
+  const [favorites, setFavorites] = useMMKVObject<Favorite[]>('favorites');
+
+  const toggleFavorite = () => {
+    const current = favorites || [];
+    if (!isFavorite) {
+      setFavorites([
+        ...current,
+        { id, mediaType, thumbnail: movie?.poster_path!, name: movie?.title || movie?.name || '' },
+      ]);
+    } else {
+      setFavorites(current.filter((fav) => fav.id !== id || fav.mediaType !== mediaType));
+    }
+    setIsFavorite(!isFavorite);
+  };
 
   return (
     <Main>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Button
+              scale={0.95}
+              hoverStyle={{
+                scale: 0.975,
+              }}
+              pressStyle={{
+                scale: 0.975,
+              }}
+              animation="bouncy"
+              onPress={toggleFavorite}
+              unstyled>
+              <Heart fill={isFavorite ? 'red' : theme.blue7.get()} size={26} />
+            </Button>
+          ),
+        }}
+      />
       <ScrollView>
         <ImageBackground
           source={{
